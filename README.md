@@ -1,146 +1,89 @@
-# 📱 คู่มือการติดตั้ง Vesktop บน Ubuntu
+# 🤖 BOT-ZX Simple Uploader v4.0
 
-> **Vesktop** เป็น Discord client ที่ปรับแต่งได้และมีฟีเจอร์เพิ่มเติมมากมาย คู่มือนี้จะแนะนำวิธีติดตั้งบน Ubuntu อย่างละเอียด
+🎮 **Minecraft Add-on Uploader** - อัปโหลดไฟล์ .mcaddon และ .zip ไปยัง Telegram และ Discord
 
-## 🎯 วิธีการติดตั้งที่แนะนำ: Flatpak
+## 🚀 การติดตั้ง
 
-**เหตุผลที่แนะนำ Flatpak:**
-- ✅ ติดตั้งง่าย ไม่ยุ่งยาก
-- ✅ จัดการ dependencies อัตโนมัติ
-- ✅ แยกจากระบบหลัก ไม่กระทบแพ็คเกจอื่น
-- ✅ อัพเดทง่าย ปลอดภัย
+### 1. ติดตั้ง Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 2. สร้างไฟล์ .env
+สร้างไฟล์ `.env` และเพิ่มข้อมูล:
+```env
+TELEGRAM_TOKEN=your_telegram_bot_token
+TELEGRAM_CHAT_ID=your_chat_id
+DISCORD_WEBHOOK_URL=your_discord_webhook_url
+BOT_NAME=BOT-ZX
+BOT_VERSION=4.0
+```
+
+### 3. เตรียมไฟล์
+วางไฟล์ .mcaddon หรือ .zip ในโฟลเดอร์ `upload_files/`
+
+## 🎯 การใช้งาน
+
+```bash
+python upload.py
+```
+
+### ขั้นตอน:
+1. **เลือกไฟล์** - เลือกไฟล์ที่ต้องการอัปโหลด
+2. **เลือกแพลตฟอร์ม** - Telegram, Discord หรือทั้งคู่
+3. **รอการอัปโหลด** - ระบบจะอัปโหลดและแสดงผลลัพธ์
+
+## 🎨 ตัวอย่างข้อความ
+
+```
+🎮 Chomp
+🌟 สนับสนุนเซิร์ฟเวอร์
+└ ซื้อ VIP จากแอดมินเพื่อสิทธิพิเศษ! 🎯
+
+🎮 รับแมพและรีซอร์สแพ็กสุดพิเศษ
+└ แบบเอ็กซ์คลูซีฟ! 💎
+
+💖 ทดลองเล่นก่อนตัดสินใจซื้อ
+└ เพื่อช่วยเหลือผู้พัฒนา! 🙏
+
+⚠️ หมายเหตุสำคัญ
+└ ไฟล์ที่ดาวน์โหลดอาจมีข้อจำกัดด้านลิขสิทธิ์
+└ ควรสนับสนุนผู้พัฒนาโดยการซื้อของแท้หากคุณชอบสิ่งนี้ 🛒
+
+📁 ไฟล์: Chomp (Add-on).mcaddon
+📊 ขนาด: 913.8 KB
+👤 อัปโหลด: ZirconX
+🤖 BOT-ZX
+```
+
+## 📁 โครงสร้างไฟล์
+
+```
+upload/
+├── upload.py          # ไฟล์หลัก
+├── upload.cmd         # Batch file สำหรับ Windows
+├── requirements.txt   # Dependencies
+├── .env              # Environment variables
+├── .gitignore        # Git ignore
+├── README.md         # เอกสารนี้
+└── upload_files/     # โฟลเดอร์สำหรับไฟล์ที่ต้องการอัปโหลด
+```
+
+## 🔧 การตั้งค่า
+
+### Telegram Bot
+1. สร้าง Bot ผ่าน @BotFather
+2. รับ Token และใส่ใน `TELEGRAM_TOKEN`
+3. รับ Chat ID และใส่ใน `TELEGRAM_CHAT_ID`
+
+### Discord Webhook
+1. สร้าง Webhook ใน Discord Server
+2. คัดลอก Webhook URL และใส่ใน `DISCORD_WEBHOOK_URL`
+
+## 📝 License
+
+MIT License - ใช้งานได้อย่างอิสระ
 
 ---
 
-## 📋 ขั้นตอนการติดตั้ง
-
-### 1️⃣ ติดตั้ง Flatpak
-
-เปิด Terminal (กด `Ctrl + Alt + T`) แล้วรันคำสั่ง:
-
-```bash
-sudo apt update
-sudo apt install flatpak
-```
-
-**ตรวจสอบการติดตั้ง:**
-```bash
-flatpak --version
-```
-หากแสดงเวอร์ชันออกมา แสดงว่าติดตั้งสำเร็จ ✅
-
-### 2️⃣ เพิ่ม Flathub Repository
-
-Flathub เป็นแหล่งรวมแอปพลิเคชัน Flatpak ที่ใหญ่ที่สุด:
-
-```bash
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-```
-
-### 3️⃣ รีสตาร์ทระบบ ⚠️ **สำคัญมาก**
-
-> **💡 หมายเหตุ:** ขั้นตอนนี้จำเป็นมาก เพื่อให้ระบบรู้จัก Flathub repository
-
-```bash
-sudo reboot
-```
-
-**หลังจากรีสตาร์ท:** เข้าสู่ระบบอีกครั้ง
-
-### 4️⃣ ติดตั้ง Vesktop
-
-เมื่อระบบพร้อมแล้ว รันคำสั่ง:
-
-```bash
-flatpak install flathub dev.vencord.Vesktop
-```
-
-ระบบจะถามให้ยืนยัน → กด `y` แล้ว `Enter`
-
-### 5️⃣ เปิดใช้งาน Vesktop
-
-**วิธีที่ 1:** เปิดจากเมนู Applications ของ Ubuntu
-
-**วิธีที่ 2:** รันคำสั่งใน Terminal
-```bash
-flatpak run dev.vencord.Vesktop
-```
-
----
-
-## 🔧 การแก้ไขปัญหาที่พบบ่อย
-
-### ❌ ปัญหา: `error: No remote refs found for 'flathub'`
-
-**สาเหตุ:** ระบบไม่รู้จัก flathub repository
-
-**วิธีแก้ไข:**
-
-1. **เพิ่ม Flathub อีกครั้ง:**
-   ```bash
-   flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-   ```
-
-2. **ตรวจสอบ remotes:**
-   ```bash
-   flatpak remotes
-   ```
-   ควรเห็น `flathub` ในรายการ
-
-3. **รีสตาร์ทระบบ:**
-   ```bash
-   sudo reboot
-   ```
-
-### ❌ ปัญหา: `command not found` สำหรับ `flatpak`
-
-**สาเหตุ:** Flatpak ยังไม่ได้ติดตั้ง
-
-**วิธีแก้ไข:**
-```bash
-sudo apt update
-sudo apt install flatpak
-```
-
-### ❌ ปัญหา: Vesktop ไม่เปิด
-
-**วิธีแก้ไข:**
-
-1. **ตรวจสอบ Error ใน Terminal:**
-   ```bash
-   flatpak run dev.vencord.Vesktop
-   ```
-   ดูข้อความ Error ที่แสดง
-
-2. **ตรวจสอบพื้นที่ดิสก์:**
-   ```bash
-   df -h
-   ```
-
-3. **ตรวจสอบ RAM:**
-   ```bash
-   free -h
-   ```
-
----
-
-## 📞 ต้องการความช่วยเหลือเพิ่มเติม?
-
-หากพบปัญหา ให้แจ้ง:
-- 📝 ข้อความ Error ที่แม่นยำ
-- 🔍 ขั้นตอนที่ติดขัด
-- 💻 ข้อมูลระบบ (Ubuntu version, RAM, etc.)
-
----
-
-## 🎉 เสร็จสิ้น!
-
-ตอนนี้คุณสามารถใช้งาน Vesktop บน Ubuntu ได้แล้ว! 
-
-**ข้อดีของ Vesktop:**
-- 🎨 ปรับแต่งธีมได้
-- 🔌 ปลั๊กอินมากมาย
-- ⚡ ประสิทธิภาพดี
-- 🛡️ ปลอดภัยกว่า Discord ธรรมดา
-
-> **💡 เคล็ดลับ:** ลองสำรวจฟีเจอร์ต่างๆ ของ Vesktop ดูครับ มีอะไรน่าสนใจมากมาย!
+**🎮 สนุกกับการเล่น Minecraft! 🚀**
