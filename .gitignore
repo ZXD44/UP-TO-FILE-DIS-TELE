@@ -56,7 +56,9 @@ Thumbs.db
 
 # Upload files directory (contains user files)
 upload_files/
-upload_files/*
+upload_files/**
+*.mcaddon
+*.mcpack
 
 # Backup files
 *.bak
