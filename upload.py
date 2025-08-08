@@ -32,6 +32,13 @@ class SimpleUploader:
         print("🎮 BOT-ZX Simple Uploader v4.0")
         print("🚀 Minecraft Add-on Uploader")
         print("=" * 50)
+    
+    def show_progress(self, current, total):
+        """แสดง progress bar"""
+        progress = int((current / total) * 20)
+        bar = "█" * progress + "░" * (20 - progress)
+        percentage = int((current / total) * 100)
+        print(f"📊 ความคืบหน้า: [{bar}] {percentage}%")
         
     def get_files(self):
         """ดึงรายการไฟล์เฉพาะ .mcaddon และ .zip จากโฟลเดอร์ upload_files"""
@@ -44,6 +51,14 @@ class SimpleUploader:
                     files.append(f)
         return files
     
+    def format_file_size(self, bytes_size):
+        """จัดรูปแบบขนาดไฟล์"""
+        kb = bytes_size / 1024
+        if kb >= 1024:
+            mb = kb / 1024
+            return f"{mb:.1f} MB"
+        return f"{kb:.1f} KB"
+    
     def show_files(self, files):
         """แสดงรายการไฟล์"""
         print(f"\n📁 ไฟล์ที่พบ ({len(files)} ไฟล์):")
@@ -51,9 +66,10 @@ class SimpleUploader:
         upload_dir = os.path.join(self.current_dir, 'upload_files')
         for i, file in enumerate(files, 1):
             file_path = os.path.join(upload_dir, file)
-            size = os.path.getsize(file_path) / 1024
+            size = os.path.getsize(file_path)
+            formatted_size = self.format_file_size(size)
             print(f"  {i:2d}. 📦 {file}")
-            print(f"      📊 ขนาด: {size:.1f} KB")
+            print(f"      📊 ขนาด: {formatted_size}")
             print()
     
     def select_platform(self):
@@ -101,22 +117,13 @@ class SimpleUploader:
         clean_name = re.sub(r'\.(mcpack|mcaddon|zip|rar|7z|txt|md)$', '', clean_name, flags=re.IGNORECASE)
         clean_name = re.sub(r'[_\-\.]', ' ', clean_name).strip()
         
-        # แก้ไขชื่อให้ตรงกับเว็บไซต์
-        if "display stuff" in clean_name.lower():
-            clean_name = "Display Stuff"
-        elif "chomp" in clean_name.lower():
-            clean_name = "Chomp"
-        elif "craftymon" in clean_name.lower():
-            clean_name = "Craftymon"
-        
         print(f"🔍 ชื่อไฟล์: {clean_name}")
         
         # ใช้ข้อมูลเริ่มต้น
         return {
             'name': clean_name,
             'title': clean_name,
-            'description': f"""🎮 **{clean_name}**
-🌟 **สนับสนุนเซิร์ฟเวอร์**
+            'description': f"""🌟 **สนับสนุนเซิร์ฟเวอร์**
 └ ซื้อ VIP จากแอดมินเพื่อสิทธิพิเศษ! 🎯
 
 🎮 **รับแมพและรีซอร์สแพ็กสุดพิเศษ**
@@ -137,7 +144,8 @@ class SimpleUploader:
         print(f"📱 กำลังส่งไป Telegram...")
         
         filename = os.path.basename(file_path)
-        file_size = os.path.getsize(file_path) / 1024
+        file_size_bytes = os.path.getsize(file_path)
+        file_size = self.format_file_size(file_size_bytes)
         
         # 1. ส่งข้อความข้อมูล Addon ก่อน
         try:
@@ -147,8 +155,8 @@ class SimpleUploader:
 
 {addon_info['rating']} | {addon_info['downloads']}
 
-📎 **ไฟล์:** `{filename}`
-📁 **ขนาด:** `{file_size:.1f} KB`
+� **ไฟลโ์:** `{filename}`
+📁 **ขนาด:** `{file_size}`
 👤 **อัปโหลด:** `{self.user}`
 
 🤖 {self.bot_name}"""
@@ -192,7 +200,8 @@ class SimpleUploader:
         print(f"📢 กำลังส่งไป Discord...")
         
         filename = os.path.basename(file_path)
-        file_size = os.path.getsize(file_path) / 1024
+        file_size_bytes = os.path.getsize(file_path)
+        file_size = self.format_file_size(file_size_bytes)
         
         try:
             # 1. ส่งข้อมูล Addon ก่อน (ไม่มีไฟล์)
@@ -202,7 +211,7 @@ class SimpleUploader:
                 "color": 0x4CAF50,
                 "fields": [
                     {"name": "📁 ไฟล์", "value": f"`{filename}`", "inline": True},
-                    {"name": "📊 ขนาด", "value": f"`{file_size:.1f} KB`", "inline": True},
+                    {"name": "📊 ขนาด", "value": f"`{file_size}`", "inline": True},
                     {"name": "👤 อัปโหลด", "value": f"`{self.user}`", "inline": True}
                 ],
                 "footer": {"text": f"🤖 {self.bot_name}"}
@@ -278,11 +287,14 @@ class SimpleUploader:
         print(f"\n🚀 เริ่มอัปโหลด {total} ไฟล์...")
         print("─" * 40)
         
-        for i in selected_indices:
+        for idx, i in enumerate(selected_indices):
             filename = files[i]
             file_path = os.path.join(self.current_dir, 'upload_files', filename)
             
-            print(f"\n📤 กำลังประมวลผล ({success+1}/{total}): {filename}")
+            # แสดง progress bar
+            self.show_progress(idx, total)
+            
+            print(f"\n📤 กำลังประมวลผล ({idx+1}/{total}): {filename}")
             print("─" * 30)
             
             # ตรวจสอบข้อมูล
@@ -306,6 +318,9 @@ class SimpleUploader:
                 print("❌ ล้มเหลว!")
             
             time.sleep(1)  # พักเล็กน้อย
+        
+        # แสดง progress bar สุดท้าย (100%)
+        self.show_progress(total, total)
         
         # สรุปผล
         print(f"\n🎉 เสร็จสิ้น!")

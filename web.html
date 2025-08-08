@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 BOT-ZX Uploader</title>
+    <script src="config.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .config-info {
+            background: #e8f5e8;
+            border: 1px solid #4CAF50;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .config-info h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+        
+        .config-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #c8e6c9;
+        }
+        
+        .config-item:last-child {
+            border-bottom: none;
+        }
+        
+        .config-label {
+            font-weight: 500;
+            color: #2e7d32;
+        }
+        
+        .config-value {
+            color: #666;
+            font-family: monospace;
+        }
+        
+        .upload-section {
+            background: #f8f9fa;
+            border: 2px dashed #4CAF50;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-section:hover {
+            border-color: #45a049;
+            background: #f0f8f0;
+        }
+        
+        .upload-area {
+            position: relative;
+        }
+        
+        .file-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .upload-icon {
+            font-size: 3em;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        
+        .upload-text {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .upload-hint {
+            color: #666;
+        }
+        
+        .platform-selection {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .platform-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .platform-card:hover {
+            border-color: #4CAF50;
+            transform: translateY(-2px);
+        }
+        
+        .platform-card.selected {
+            border-color: #4CAF50;
+            background: #e8f5e8;
+        }
+        
+        .file-list {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .file-info .emoji {
+            margin-right: 15px;
+            font-size: 1.5em;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+        
+        .progress-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .status-log {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .status-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .status-success { color: #28a745; }
+        .status-error { color: #dc3545; }
+        .status-info { color: #17a2b8; }
+        
+        @media (max-width: 768px) {
+            .platform-selection {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                margin: 10px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 BOT-ZX Uploader</h1>
+            <p>🚀 Minecraft Add-on Uploader</p>
+        </div>
+        
+        <div class="main-content">
+            <!-- การตั้งค่าจาก .env -->
+            <div class="config-info" id="configInfo">
+                <h3>⚙️ การตั้งค่าจาก .env</h3>
+                <div id="configItems">
+                    <div class="config-item">
+                        <span class="config-label">📱 Telegram:</span>
+                        <span class="config-value" id="telegramStatus">กำลังโหลด...</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">📢 Discord:</span>
+                        <span class="config-value" id="discordStatus">กำลังโหลด...</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">🤖 Bot Name:</span>
+                        <span class="config-value" id="botName">กำลังโหลด...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- การอัปโหลดไฟล์ -->
+            <div class="upload-section">
+                <div class="upload-area">
+                    <input type="file" class="file-input" id="fileInput" multiple accept=".mcaddon,.zip,.mcpack">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์</div>
+                    <div class="upload-hint">รองรับไฟล์ .mcaddon, .zip, .mcpack</div>
+                </div>
+            </div>
+            
+            <!-- เลือกแพลตฟอร์ม -->
+            <div class="platform-selection">
+                <div class="platform-card" data-platform="telegram">
+                    <h3>📱 Telegram</h3>
+                    <p>ส่งไปยัง Telegram Bot</p>
+                </div>
+                <div class="platform-card" data-platform="discord">
+                    <h3>📢 Discord</h3>
+                    <p>ส่งไปยัง Discord Webhook</p>
+                </div>
+                <div class="platform-card selected" data-platform="both">
+                    <h3>🌐 ทั้งคู่</h3>
+                    <p>ส่งไปทั้ง Telegram และ Discord</p>
+                </div>
+            </div>
+            
+            <!-- รายการไฟล์ -->
+            <div class="file-list" id="fileList">
+                <h3>📦 ไฟล์ที่เลือก</h3>
+                <div id="fileItems"></div>
+            </div>
+            
+            <!-- ความคืบหน้า -->
+            <div class="progress-section" id="progressSection">
+                <h3>📊 ความคืบหน้าการอัปโหลด</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar"></div>
+                </div>
+                <div id="progressText" style="text-align: center; margin: 10px 0;">0%</div>
+                <div class="status-log" id="statusLog"></div>
+            </div>
+            
+            <!-- ปุ่มอัปโหลด -->
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn" id="uploadBtn" onclick="startUpload()" disabled>
+                    🚀 เริ่มอัปโหลด
+                </button>
+                <button class="btn btn-danger" onclick="clearAll()" style="margin-left: 15px;">
+                    🗑️ ล้างทั้งหมด
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let selectedFiles = [];
+        let selectedPlatform = 'both';
+        let config = {};
+        
+        // โหลดการตั้งค่าจาก config.js
+        function loadConfig() {
+            // ใช้ข้อมูลจาก config.js
+            config = CONFIG;
+            updateConfigDisplay();
+        }
+        
+        function updateConfigDisplay() {
+            const telegramStatus = config.TELEGRAM_TOKEN ? '✅ พร้อมใช้งาน' : '❌ ไม่พบ Token';
+            const discordStatus = config.DISCORD_WEBHOOK_URL ? '✅ พร้อมใช้งาน' : '❌ ไม่พบ Webhook';
+            
+            document.getElementById('telegramStatus').textContent = telegramStatus;
+            document.getElementById('discordStatus').textContent = discordStatus;
+            document.getElementById('botName').textContent = config.BOT_NAME || 'BOT-ZX';
+            
+            updateUploadButton();
+        }
+        
+        // การจัดการไฟล์
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const fileItems = document.getElementById('fileItems');
+        const uploadBtn = document.getElementById('uploadBtn');
+        
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        // Drag and Drop
+        const uploadArea = document.querySelector('.upload-area');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.parentElement.style.borderColor = '#45a049';
+            uploadArea.parentElement.style.backgroundColor = '#f0f8f0';
+        });
+        
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.parentElement.style.borderColor = '#4CAF50';
+            uploadArea.parentElement.style.backgroundColor = '#f8f9fa';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.parentElement.style.borderColor = '#4CAF50';
+            uploadArea.parentElement.style.backgroundColor = '#f8f9fa';
+            
+            const files = Array.from(e.dataTransfer.files);
+            handleFiles(files);
+        });
+        
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            handleFiles(files);
+        }
+        
+        function handleFiles(files) {
+            const validFiles = files.filter(file => {
+                const ext = file.name.toLowerCase();
+                return ext.endsWith('.mcaddon') || ext.endsWith('.zip') || ext.endsWith('.mcpack');
+            });
+            
+            selectedFiles = [...selectedFiles, ...validFiles];
+            updateFileList();
+            updateUploadButton();
+        }
+        
+        function formatFileSize(bytes) {
+            const kb = bytes / 1024;
+            if (kb >= 1024) {
+                const mb = kb / 1024;
+                return mb.toFixed(1) + ' MB';
+            }
+            return kb.toFixed(1) + ' KB';
+        }
+        
+        function updateFileList() {
+            if (selectedFiles.length === 0) {
+                fileList.style.display = 'none';
+                return;
+            }
+            
+            fileList.style.display = 'block';
+            fileItems.innerHTML = '';
+            
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                const cleanName = cleanFileName(file.name);
+                const fileSize = formatFileSize(file.size);
+                
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <span class="emoji">📦</span>
+                        <div>
+                            <h4>${cleanName}</h4>
+                            <p>📊 ${fileSize} | 📁 ${file.name}</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-danger" onclick="removeFile(${index})">🗑️</button>
+                `;
+                
+                fileItems.appendChild(fileItem);
+            });
+        }
+        
+        function cleanFileName(filename) {
+            let clean = filename.replace(/\s*\(Add-on\)\s*/gi, '');
+            clean = clean.replace(/\.(mcpack|mcaddon|zip|rar|7z|txt|md)$/gi, '');
+            clean = clean.replace(/[_\-\.]/g, ' ').trim();
+            return clean;
+        }
+        
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+            updateUploadButton();
+        }
+        
+        function updateUploadButton() {
+            const hasFiles = selectedFiles.length > 0;
+            const hasConfig = config.TELEGRAM_TOKEN || config.DISCORD_WEBHOOK_URL;
+            uploadBtn.disabled = !(hasFiles && hasConfig);
+        }
+        
+        // การเลือกแพลตฟอร์ม
+        document.querySelectorAll('.platform-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.platform-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedPlatform = card.dataset.platform;
+            });
+        });
+        
+        // การอัปโหลด
+        async function startUpload() {
+            if (selectedFiles.length === 0) {
+                alert('กรุณาเลือกไฟล์ก่อน');
+                return;
+            }
+            
+            const progressSection = document.getElementById('progressSection');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const statusLog = document.getElementById('statusLog');
+            
+            progressSection.style.display = 'block';
+            uploadBtn.disabled = true;
+            statusLog.innerHTML = '';
+            
+            addStatusLog('🚀 เริ่มอัปโหลด ' + selectedFiles.length + ' ไฟล์...', 'info');
+            
+            let successCount = 0;
+            const totalFiles = selectedFiles.length;
+            
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                const progress = ((i + 1) / totalFiles) * 100;
+                
+                progressBar.style.width = progress + '%';
+                progressText.textContent = Math.round(progress) + '%';
+                
+                addStatusLog(`📤 กำลังประมวลผล (${i + 1}/${totalFiles}): ${file.name}`, 'info');
+                
+                try {
+                    const success = await uploadFile(file);
+                    if (success) {
+                        successCount++;
+                        addStatusLog(`✅ อัปโหลด ${file.name} สำเร็จ`, 'success');
+                    } else {
+                        addStatusLog(`❌ อัปโหลด ${file.name} ล้มเหลว`, 'error');
+                    }
+                } catch (error) {
+                    addStatusLog(`❌ ข้อผิดพลาด: ${error.message}`, 'error');
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            addStatusLog(`🎉 เสร็จสิ้น! สำเร็จ: ${successCount}/${totalFiles} ไฟล์`, successCount === totalFiles ? 'success' : 'error');
+            uploadBtn.disabled = false;
+        }
+        
+        async function uploadFile(file) {
+            const cleanName = cleanFileName(file.name);
+            const fileSize = formatFileSize(file.size);
+            
+            const addonInfo = {
+                name: cleanName,
+                title: cleanName,
+                description: `🌟**สนับสนุนเซิร์ฟเวอร์**
+└ ซื้อ VIP จากแอดมินเพื่อสิทธิพิเศษ! 🎯
+
+🎮 **รับแมพและรีซอร์สแพ็กสุดพิเศษ**
+└ แบบเอ็กซ์คลูซีฟ! 💎
+
+💖 **ทดลองเล่นก่อนตัดสินใจซื้อ**
+└ เพื่อช่วยเหลือผู้พัฒนา! 🙏
+
+⚠️ **หมายเหตุสำคัญ**
+└ ไฟล์ที่ดาวน์โหลดอาจมีข้อจำกัดด้านลิขสิทธิ์
+└ ควรสนับสนุนผู้พัฒนาโดยการซื้อของแท้หากคุณชอบสิ่งนี้ 🛒`,
+                rating: "⭐ 4.5/5",
+                downloads: "📥 1.2K+"
+            };
+            
+            let success = false;
+            
+            // อัปโหลดไป Telegram
+            if (selectedPlatform === 'telegram' || selectedPlatform === 'both') {
+                if (config.TELEGRAM_TOKEN && config.TELEGRAM_CHAT_ID) {
+                    const telegramSuccess = await uploadToTelegram(file, addonInfo, fileSize);
+                    if (telegramSuccess) success = true;
+                }
+            }
+            
+            // อัปโหลดไป Discord
+            if (selectedPlatform === 'discord' || selectedPlatform === 'both') {
+                if (config.DISCORD_WEBHOOK_URL) {
+                    const discordSuccess = await uploadToDiscord(file, addonInfo, fileSize);
+                    if (discordSuccess) success = true;
+                }
+            }
+            
+            return success;
+        }
+        
+        async function uploadToTelegram(file, addonInfo, fileSize) {
+            try {
+                addStatusLog('📱 กำลังส่งไป Telegram...', 'info');
+                
+                const infoMessage = `🎮 **${addonInfo.title}**
+
+${addonInfo.description}
+
+${addonInfo.rating} | ${addonInfo.downloads}
+
+📎 **ไฟล์:** \`${file.name}\`
+📁 **ขนาด:** \`${fileSize}\`
+👤 **อัปโหลด:** \`Web User\`
+
+🤖 ${config.BOT_NAME}`;
+                
+                const messageResponse = await fetch(`https://api.telegram.org/bot${config.TELEGRAM_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: config.TELEGRAM_CHAT_ID,
+                        text: infoMessage,
+                        parse_mode: 'Markdown'
+                    })
+                });
+                
+                if (messageResponse.ok) {
+                    addStatusLog('✅ ส่งข้อมูล Telegram สำเร็จ', 'success');
+                }
+                
+                const formData = new FormData();
+                formData.append('chat_id', config.TELEGRAM_CHAT_ID);
+                formData.append('document', file);
+                formData.append('caption', `📥 ดาวน์โหลด ${addonInfo.name}\n🤖 ${config.BOT_NAME}`);
+                
+                const fileResponse = await fetch(`https://api.telegram.org/bot${config.TELEGRAM_TOKEN}/sendDocument`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (fileResponse.ok) {
+                    addStatusLog('✅ อัปโหลดไฟล์ Telegram สำเร็จ', 'success');
+                    return true;
+                } else {
+                    addStatusLog('❌ อัปโหลดไฟล์ Telegram ล้มเหลว', 'error');
+                    return false;
+                }
+                
+            } catch (error) {
+                addStatusLog(`❌ ข้อผิดพลาด Telegram: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        async function uploadToDiscord(file, addonInfo, fileSize) {
+            try {
+                addStatusLog('📢 กำลังส่งไป Discord...', 'info');
+                
+                const embedInfo = {
+                    title: `🎮 ${addonInfo.title}`,
+                    description: addonInfo.description,
+                    color: 0x4CAF50,
+                    fields: [
+                        { name: "📁 ไฟล์", value: `\`${file.name}\``, inline: true },
+                        { name: "📊 ขนาด", value: `\`${fileSize}\``, inline: true },
+                        { name: "👤 อัปโหลด", value: `\`Web User\``, inline: true }
+                    ],
+                    footer: { text: `🤖 ${config.BOT_NAME}` }
+                };
+                
+                const embedResponse = await fetch(config.DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        embeds: [embedInfo],
+                        username: config.BOT_NAME
+                    })
+                });
+                
+                if (embedResponse.ok) {
+                    addStatusLog('✅ ส่งข้อมูล Discord สำเร็จ', 'success');
+                }
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('payload_json', JSON.stringify({
+                    content: "",
+                    username: config.BOT_NAME
+                }));
+                
+                const fileResponse = await fetch(config.DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (fileResponse.ok) {
+                    addStatusLog('✅ อัปโหลดไฟล์ Discord สำเร็จ', 'success');
+                    return true;
+                } else {
+                    addStatusLog('❌ อัปโหลดไฟล์ Discord ล้มเหลว', 'error');
+                    return false;
+                }
+                
+            } catch (error) {
+                addStatusLog(`❌ ข้อผิดพลาด Discord: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        function addStatusLog(message, type) {
+            const statusLog = document.getElementById('statusLog');
+            const statusItem = document.createElement('div');
+            statusItem.className = `status-item status-${type}`;
+            statusItem.textContent = message;
+            statusLog.appendChild(statusItem);
+            statusLog.scrollTop = statusLog.scrollHeight;
+        }
+        
+        function clearAll() {
+            selectedFiles = [];
+            updateFileList();
+            updateUploadButton();
+            document.getElementById('progressSection').style.display = 'none';
+            fileInput.value = '';
+        }
+        
+        // โหลดการตั้งค่าเมื่อเริ่มต้น
+        window.addEventListener('load', loadConfig);
+    </script>
+</body>
+</html>

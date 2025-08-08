@@ -3,6 +3,9 @@
 .env.local
 .env.production
 
+# Configuration files with sensitive data
+config.js
+
 # Python
 __pycache__/
 *.py[cod]
@@ -50,3 +53,32 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Upload files directory (contains user files)
+upload_files/
+upload_files/*
+
+# Backup files
+*.bak
+*.backup
+
+# Windows specific
+desktop.ini
+Thumbs.db:encryptable
+
+# Mac specific
+.DS_Store?
+.Spotlight-V100
+.Trashes
+
+# Personal/sensitive files
+*.key
+*.pem
+*.p12
+*.pfx
+secrets.txt
+passwords.txt
+
+# Test files
+test_*
+*_test.*
