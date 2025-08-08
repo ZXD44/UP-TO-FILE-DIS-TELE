@@ -27,15 +27,15 @@
 
 ## ✅ การตั้งค่าที่ปลอดภัย
 
-1. **ใช้ไฟล์ตัวอย่าง:**
+1. **สร้างไฟล์ .env:**
    ```bash
-   copy .env.example .env
-   copy config.example.js config.js
+   # สร้างไฟล์ .env ใหม่
+   notepad .env
    ```
 
-2. **แก้ไขเฉพาะไฟล์ local:**
-   - แก้ไข `.env` (ไม่ใช่ `.env.example`)
-   - แก้ไข `config.js` (ไม่ใช่ `config.example.js`)
+2. **ใส่ข้อมูลจริงเฉพาะใน .env:**
+   - ไม่แชร์ไฟล์ `.env` กับใคร
+   - ไฟล์ `config.js` จะถูกสร้างอัตโนมัติจาก `.env`
 
 3. **ตรวจสอบก่อน commit:**
    ```bash

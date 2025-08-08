@@ -10,9 +10,7 @@ BOT-ZX-Uploader/
 ├── 🌐 web.html           # เว็บแอปพลิเคชัน
 ├── ⚙️ config.js          # การตั้งค่าเว็บ (สร้างอัตโนมัติ)
 ├── 🚀 start.cmd          # เปิดเว็บแอป
-├── 📋 requirements.txt   # Python dependencies
 ├── 🔒 .env               # การตั้งค่าส่วนตัว (ไม่อัปโหลด)
-├── 📝 .env.example       # ตัวอย่างการตั้งค่า
 ├── 🛡️ SECURITY.md        # คำแนะนำความปลอดภัย
 └── 📁 upload_files/      # โฟลเดอร์ไฟล์ที่จะอัปโหลด
     └── *.mcaddon         # ไฟล์ Minecraft Add-on
@@ -34,12 +32,7 @@ BOT-ZX-Uploader/
 
 ## ⚙️ การตั้งค่า
 
-1. **คัดลอกไฟล์ตัวอย่าง:**
-   ```bash
-   copy .env.example .env
-   ```
-
-2. **แก้ไขไฟล์ `.env`** ใส่ข้อมูลจริง:
+1. **สร้างไฟล์ `.env`** ในโฟลเดอร์หลัก:
    ```env
    # Telegram Configuration
    TELEGRAM_TOKEN=your_telegram_bot_token_here
@@ -53,24 +46,31 @@ BOT-ZX-Uploader/
    BOT_VERSION=4.0
    ```
 
-3. **สร้างโฟลเดอร์ไฟล์:**
+2. **สร้างโฟลเดอร์ไฟล์:**
    ```bash
    mkdir upload_files
    ```
 
-4. **วางไฟล์ .mcaddon** ใน `upload_files/`
+3. **วางไฟล์ .mcaddon** ใน `upload_files/`
 
-### 📋 ตัวอย่างการตั้งค่า config.js (สำหรับเว็บ)
-```javascript
-// ตัวอย่างการตั้งค่า - คัดลอกไปเป็น config.js และใส่ข้อมูลจริง
-const CONFIG = {
-    TELEGRAM_TOKEN: 'your_telegram_bot_token_here',
-    TELEGRAM_CHAT_ID: 'your_telegram_chat_id_here', 
-    DISCORD_WEBHOOK_URL: 'your_discord_webhook_url_here',
-    BOT_NAME: 'BOT-ZX',
-    BOT_VERSION: '4.0'
-};
-```
+### 🔑 วิธีหา API Keys
+
+#### Telegram Bot Token:
+1. ไปที่ [@BotFather](https://t.me/BotFather) บน Telegram
+2. พิมพ์ `/newbot` และตั้งชื่อ Bot
+3. คัดลอก Token ที่ได้
+
+#### Telegram Chat ID:
+1. เพิ่ม Bot เข้ากลุ่มหรือแชทส่วนตัว
+2. ส่งข้อความใดๆ ให้ Bot
+3. เปิด: `https://api.telegram.org/bot<TOKEN>/getUpdates`
+4. หา `chat.id` ในผลลัพธ์
+
+#### Discord Webhook:
+1. เข้า Discord Server Settings
+2. ไป Integrations → Webhooks
+3. สร้าง New Webhook
+4. คัดลอก Webhook URL
 
 ## ✨ ฟีเจอร์หลัก
 
@@ -85,9 +85,13 @@ const CONFIG = {
 
 ## 📋 ความต้องการระบบ
 
-- **Python 3.7+** 
+- **Python 3.7+** พร้อม pip
 - **Internet Connection**
 - **Web Browser** (สำหรับเว็บแอป)
+
+### 📦 Python Libraries ที่ต้องการ
+- `requests` - สำหรับส่ง HTTP requests
+- `python-dotenv` - สำหรับอ่านไฟล์ .env
 
 ## 📦 การติดตั้ง
 
@@ -97,9 +101,9 @@ const CONFIG = {
    cd BOT-ZX-Uploader
    ```
 
-2. **ติดตั้ง Python dependencies**
+2. **ติดตั้ง Python libraries**
    ```bash
-   pip install -r requirements.txt
+   pip install requests python-dotenv
    ```
 
 3. **ตั้งค่าตามขั้นตอนด้านบน**
