@@ -350,8 +350,8 @@
         
         // โหลดการตั้งค่าจาก config.js
         function loadConfig() {
-            // ใช้ข้อมูลจาก config.js
-            config = CONFIG;
+            // ใช้ข้อมูลจาก config.js (ถ้าไม่มี ให้ใช้ค่าเปล่า)
+            config = (typeof CONFIG !== 'undefined') ? CONFIG : {};
             updateConfigDisplay();
         }
         

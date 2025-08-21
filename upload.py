@@ -45,9 +45,18 @@ class SimpleUploader:
         files = []
         upload_dir = os.path.join(self.current_dir, 'upload_files')
         
+        # สร้างโฟลเดอร์ถ้ายังไม่มี
+        if not os.path.exists(upload_dir):
+            try:
+                os.makedirs(upload_dir)
+                print(f"📁 สร้างโฟลเดอร์ 'upload_files' แล้ว")
+            except Exception as e:
+                print(f"❌ ไม่สามารถสร้างโฟลเดอร์ 'upload_files': {e}")
+                return files
+        
         if os.path.exists(upload_dir):
             for f in os.listdir(upload_dir):
-                if os.path.isfile(os.path.join(upload_dir, f)) and f.lower().endswith(('.mcaddon', '.zip')):
+                if os.path.isfile(os.path.join(upload_dir, f)) and f.lower().endswith(('.mcaddon', '.mcpack', '.zip')):
                     files.append(f)
         return files
     
@@ -74,17 +83,29 @@ class SimpleUploader:
     
     def select_platform(self):
         """เลือกแพลตฟอร์ม"""
+        has_telegram = bool(self.token and self.chat_id)
+        has_discord = bool(self.discord_webhook)
+        
         print("\n🚀 เลือกแพลตฟอร์ม:")
-        print("  ┌─ 1. 📱 Telegram")
-        print("  ├─ 2. 📢 Discord") 
-        print("  └─ 3. 🌐 ทั้งคู่")
+        options = []
+        if has_telegram:
+            options.append('1')
+            print("  ┌─ 1. 📱 Telegram")
+        if has_discord:
+            options.append('2')
+            print(f"  {'├' if has_telegram else '┌'}─ 2. 📢 Discord")
+        if has_telegram and has_discord:
+            options.append('3')
+            print("  └─ 3. 🌐 ทั้งคู่")
+        else:
+            print(f"  └─ (ตัวเลือกอื่นไม่พร้อมใช้งาน)")
         print("─" * 30)
         
         while True:
-            choice = input("\n👉 เลือก (1/2/3): ").strip()
-            if choice in ['1', '2', '3']:
+            choice = input(f"\n👉 เลือก ({'/'.join(options)}): ").strip()
+            if choice in options:
                 return choice
-            print("❌ กรุณาเลือก 1, 2 หรือ 3")
+            print(f"❌ กรุณาเลือก {' หรือ '.join(options)}")
     
     def select_files(self, files):
         """เลือกไฟล์"""
@@ -155,7 +176,7 @@ class SimpleUploader:
 
 {addon_info['rating']} | {addon_info['downloads']}
 
-� **ไฟลโ์:** `{filename}`
+📎 **ไฟล์:** `{filename}`
 📁 **ขนาด:** `{file_size}`
 👤 **อัปโหลด:** `{self.user}`
 
@@ -164,7 +185,7 @@ class SimpleUploader:
             message_data = {
                 'chat_id': self.chat_id,
                 'text': info_message,
-                'parse_mode': 'HTML'
+                'parse_mode': 'Markdown'
             }
             
             response = requests.post(f"https://api.telegram.org/bot{self.token}/sendMessage", data=message_data)
@@ -224,7 +245,7 @@ class SimpleUploader:
             
             # ส่งข้อมูลก่อน
             response_info = requests.post(self.discord_webhook, json=payload_info)
-            if response_info.status_code == 204:
+            if 200 <= response_info.status_code < 300:
                 print("✅ ส่งข้อมูล Discord สำเร็จ")
             else:
                 print(f"⚠️ ส่งข้อมูล Discord ล้มเหลว: {response_info.status_code}")
@@ -242,7 +263,7 @@ class SimpleUploader:
                 
                 response_file = requests.post(self.discord_webhook, files=files, data=data)
                 
-                if response_file.status_code == 200:
+                if 200 <= response_file.status_code < 300:
                     print("✅ อัปโหลดไฟล์ Discord สำเร็จ")
                     return True
                 else:
@@ -258,15 +279,30 @@ class SimpleUploader:
         self.print_header()
         
         # ตรวจสอบ environment variables
-        if not self.token or not self.chat_id or not self.discord_webhook:
+        has_telegram = bool(self.token and self.chat_id)
+        has_discord = bool(self.discord_webhook)
+        
+        if not has_telegram and not has_discord:
             print("❌ ข้อผิดพลาด: ไม่พบ environment variables")
-            print("กรุณาตรวจสอบไฟล์ .env")
+            print("กรุณาตรวจสอบไฟล์ .env - ต้องมีอย่างน้อย:")
+            print("  - TELEGRAM_TOKEN และ TELEGRAM_CHAT_ID สำหรับ Telegram")
+            print("  - DISCORD_WEBHOOK_URL สำหรับ Discord")
             return
+        
+        # แสดงสถานะการตั้งค่า
+        print("\n📋 สถานะการตั้งค่า:")
+        print(f"  📱 Telegram: {'✅ พร้อมใช้งาน' if has_telegram else '❌ ไม่พร้อม'}")
+        print(f"  📢 Discord: {'✅ พร้อมใช้งาน' if has_discord else '❌ ไม่พร้อม'}")
+        print("─" * 40)
         
         # 1. ดึงรายการไฟล์
         files = self.get_files()
         if not files:
-            print("❌ ไม่พบไฟล์ในโฟลเดอร์ upload_files")
+            upload_dir = os.path.join(self.current_dir, 'upload_files')
+            print(f"\n❌ ไม่พบไฟล์ในโฟลเดอร์ upload_files")
+            print(f"📁 กรุณาวางไฟล์ .mcaddon, .mcpack หรือ .zip ใน:")
+            print(f"   {upload_dir}")
+            print("─" * 50)
             return
         
         # 2. แสดงและเลือกไฟล์
@@ -302,12 +338,14 @@ class SimpleUploader:
             
             # อัปโหลด
             uploaded = False
+            has_telegram = bool(self.token and self.chat_id)
+            has_discord = bool(self.discord_webhook)
             
-            if platform in ['1', '3']:  # Telegram
+            if platform in ['1', '3'] and has_telegram:  # Telegram
                 if self.upload_to_telegram(file_path, addon_info):
                     uploaded = True
             
-            if platform in ['2', '3']:  # Discord
+            if platform in ['2', '3'] and has_discord:  # Discord
                 if self.upload_to_discord(file_path, addon_info):
                     uploaded = True
             
@@ -334,5 +372,14 @@ class SimpleUploader:
 
 # เรียกใช้โปรแกรม
 if __name__ == "__main__":
-    uploader = SimpleUploader()
-    uploader.run()
+    try:
+        uploader = SimpleUploader()
+        uploader.run()
+    except Exception as e:
+        print(f"\n❌ เกิดข้อผิดพลาด: {e}")
+        print("─" * 50)
+        import traceback
+        traceback.print_exc()
+    finally:
+        print("\n")
+        input("กด Enter เพื่อปิดโปรแกรม...")  # รอให้ผู้ใช้กด Enter ก่อนปิด
